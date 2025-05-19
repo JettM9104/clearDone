@@ -133,6 +133,22 @@ struct ContentView: View {
             label: "C: CYTZ-YTZ",
             textDeltaX: 0,
             textDeltaY: 0
+        ),
+        CircleOverlay(
+            coordinate: CLLocationCoordinate2D(latitude: 43.6568465, longitude: -79.3878803),
+            radius: 1852,
+            color: .red,
+            label: "C: CNW8",
+            textDeltaX: 0,
+            textDeltaY: 0
+        ),
+        CircleOverlay(
+            coordinate: CLLocationCoordinate2D(latitude: 43.65415, longitude: -79.37847),
+            radius: 1852,
+            color: .red,
+            label: "C: CTM4",
+            textDeltaX: 0,
+            textDeltaY: 0
         )
     ]
 
