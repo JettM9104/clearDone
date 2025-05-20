@@ -1,36 +1,44 @@
 import SwiftUI
 import MapKit
+import UIKit
+import CoreLocation
+
+class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
+    private let manager = CLLocationManager()
+
+    override init() {
+        super.init()
+        manager.delegate = self
+        manager.requestWhenInUseAuthorization()
+        manager.startUpdatingLocation()
+    }
+}
+
 
 // MARK: - UIColor extension for contrasting text color
-
-import UIKit
 
 extension UIColor {
     var isLight: Bool {
         var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
         guard self.getRed(&red, green: &green, blue: &blue, alpha: &alpha) else {
-            return true // Assume light if unable to get color components
+            return true
         }
         let brightness = (red * 299 + green * 587 + blue * 114) / 1000
         return brightness > 0.6
     }
+
     var inverted: UIColor {
         var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
         guard self.getRed(&red, green: &green, blue: &blue, alpha: &alpha) else {
             return .black
         }
-        return UIColor(red: 1.0 - red,
-                       green: 1.0 - green,
-                       blue: 1.0 - blue,
-                       alpha: alpha)
+        return UIColor(red: 1.0 - red, green: 1.0 - green, blue: 1.0 - blue, alpha: alpha)
     }
 
     var contrastingTextColor: UIColor {
         return self.inverted
     }
-
 }
-
 
 // MARK: - Models
 
@@ -40,7 +48,6 @@ struct CircleOverlay: Identifiable {
     let radius: CLLocationDistance
     let color: UIColor
     var label: String
-    
     var textDeltaX: CGFloat = 0
     var textDeltaY: CGFloat = 0
 }
@@ -50,7 +57,6 @@ struct PolygonOverlay: Identifiable {
     let coordinates: [CLLocationCoordinate2D]
     let color: UIColor
     var label: String
-    
     var textDeltaX: CGFloat = 0
     var textDeltaY: CGFloat = 0
 }
@@ -62,10 +68,9 @@ class LabelAnnotation: NSObject, MKAnnotation {
     var title: String?
     let color: UIColor
     let id: UUID
-    
     var textDeltaX: CGFloat = 0
     var textDeltaY: CGFloat = 0
-    
+
     init(id: UUID, coordinate: CLLocationCoordinate2D, title: String, color: UIColor) {
         self.id = id
         self.coordinate = coordinate
@@ -74,97 +79,36 @@ class LabelAnnotation: NSObject, MKAnnotation {
     }
 }
 
-// MARK: - ContentView
+// MARK: - Main Content View
 
 struct ContentView: View {
+    @StateObject private var locationManager = LocationManager()
+
     @State private var circles = [
-        CircleOverlay(
-            coordinate: CLLocationCoordinate2D(latitude: 43.6766666, longitude: -79.63),
-            radius: 5556,
-            color: .red,
-            label: "C: CYYZ-YYZ",
-            textDeltaX: 0,
-            textDeltaY: 0
-        ),
-        CircleOverlay(
-            coordinate: CLLocationCoordinate2D(latitude: 43.6766666, longitude: -79.63),
-            radius: 12964,
-            color: .red,
-            label: "C: CYYZ-YYZ",
-            textDeltaX: 0,
-            textDeltaY: 0
-        ),
-        CircleOverlay(
-            coordinate: CLLocationCoordinate2D(latitude: 43.65391, longitude: -79.65785),
-            radius: 1852,
-            color: .red,
-            label: "C: CPA5",
-            textDeltaX: 0,
-            textDeltaY: 0
-        ),
-        CircleOverlay(
-            coordinate: CLLocationCoordinate2D(latitude: 43.61778, longitude: -79.56397),
-            radius: 1852,
-            color: .red,
-            label: "C: CPY5",
-            textDeltaX: 0,
-            textDeltaY: 0
-        ),
-        CircleOverlay(
-            coordinate: CLLocationCoordinate2D(latitude: 43.56141, longitude: -79.70274),
-            radius: 1852,
-            color: .red,
-            label: "C: CPK6",
-            textDeltaX: 0,
-            textDeltaY: 0
-        ),
-        CircleOverlay(
-            coordinate: CLLocationCoordinate2D(latitude: 43.633099, longitude: -79.394402),
-            radius: 5556,
-            color: .yellow,
-            label: "E: CPZ9",
-            textDeltaX: 0,
-            textDeltaY: 0
-        ),
-        CircleOverlay(
-            coordinate: CLLocationCoordinate2D(latitude: 43.6275, longitude: -79.3961111),
-            radius: 5556,
-            color: .red,
-            label: "C: CYTZ-YTZ",
-            textDeltaX: 0,
-            textDeltaY: 0
-        ),
-        CircleOverlay(
-            coordinate: CLLocationCoordinate2D(latitude: 43.6568465, longitude: -79.3878803),
-            radius: 1852,
-            color: .red,
-            label: "C: CNW8",
-            textDeltaX: 0,
-            textDeltaY: 0
-        ),
-        CircleOverlay(
-            coordinate: CLLocationCoordinate2D(latitude: 43.65415, longitude: -79.37847),
-            radius: 1852,
-            color: .red,
-            label: "C: CTM4",
-            textDeltaX: 0,
-            textDeltaY: 0
-        ),
-        CircleOverlay(
-            coordinate: CLLocationCoordinate2D(latitude: 43.7213, longitude: -79.3707651),
-            radius: 1852,
-            color: .red,
-            label: "C: CNY8",
-            textDeltaX: 0,
-            textDeltaY: 0
-        )
+        CircleOverlay(coordinate: CLLocationCoordinate2D(latitude: 43.6766666, longitude: -79.63), radius: 5556, color: .red, label: "C: CYYZ-YYZ"),
+        CircleOverlay(coordinate: CLLocationCoordinate2D(latitude: 43.6766666, longitude: -79.63), radius: 12964, color: .red, label: "C: CYYZ-YYZ"),
+        CircleOverlay(coordinate: CLLocationCoordinate2D(latitude: 43.65391, longitude: -79.65785), radius: 1852, color: .red, label: "C: CPA5"),
+        CircleOverlay(coordinate: CLLocationCoordinate2D(latitude: 43.61778, longitude: -79.56397), radius: 1852, color: .red, label: "C: CPY5"),
+        CircleOverlay(coordinate: CLLocationCoordinate2D(latitude: 43.56141, longitude: -79.70274), radius: 1852, color: .red, label: "C: CPK6"),
+        CircleOverlay(coordinate: CLLocationCoordinate2D(latitude: 43.633099, longitude: -79.394402), radius: 5556, color: .yellow, label: "E: CPZ9"),
+        CircleOverlay(coordinate: CLLocationCoordinate2D(latitude: 43.6275, longitude: -79.3961111), radius: 5556, color: .red, label: "C: CYTZ-YTZ"),
+        CircleOverlay(coordinate: CLLocationCoordinate2D(latitude: 43.6568465, longitude: -79.3878803), radius: 1852, color: .red, label: "C: CNW8"),
+        CircleOverlay(coordinate: CLLocationCoordinate2D(latitude: 43.65415, longitude: -79.37847), radius: 1852, color: .red, label: "C: CTM4"),
+        CircleOverlay(coordinate: CLLocationCoordinate2D(latitude: 43.7213, longitude: -79.3707651), radius: 1852, color: .red, label: "C: CNY8"),
+        CircleOverlay(coordinate: CLLocationCoordinate2D(latitude: 43.811571, longitude: -79.062912), radius: 1852, color: .orange, label: "F: CYR Nuclear Plant"),
+        CircleOverlay(coordinate: CLLocationCoordinate2D(latitude: 43.75972, longitude: -79.87389), radius: 5556, color: .red, label: "C: CNC3"),
+        CircleOverlay(coordinate: CLLocationCoordinate2D(latitude: 43.836111, longitude: -79.017222), radius: 1852, color: .red, label: "C: CPE2"),
+        CircleOverlay(coordinate: CLLocationCoordinate2D(latitude: 43.9255, longitude: -78.8968), radius: 5556, color: .red, label: "C: CYOO-YOO"),
+        CircleOverlay(coordinate: CLLocationCoordinate2D(latitude: 43.9255, longitude: -78.8968), radius: 9260, color: .red, label: "C: CYOO-YOO"),
+        CircleOverlay(coordinate: CLLocationCoordinate2D(latitude: 43.88510, longitude: -79.23059), radius: 1852, color: .red, label: "C: CPH7"),
+        CircleOverlay(coordinate: CLLocationCoordinate2D(latitude: 43.85216, longitude: -79.69482), radius: 1852, color: .red, label: "C: CNB2"),
+        
     ]
 
     @State private var polygons = [
         PolygonOverlay(
             coordinates: [
                 CLLocationCoordinate2D(latitude: 43.54482, longitude: -79.38163),
-                CLLocationCoordinate2D(latitude: 43.60815, longitude: -79.50105),
                 CLLocationCoordinate2D(latitude: 43.60815, longitude: -79.50105),
                 CLLocationCoordinate2D(latitude: 43.62296, longitude: -79.48799),
                 CLLocationCoordinate2D(latitude: 43.63908, longitude: -79.47831),
@@ -175,7 +119,6 @@ struct ContentView: View {
                 CLLocationCoordinate2D(latitude: 43.72510, longitude: -79.40217),
                 CLLocationCoordinate2D(latitude: 43.74397, longitude: -79.31054),
                 CLLocationCoordinate2D(latitude: 43.67114, longitude: -79.28000),
-                CLLocationCoordinate2D(latitude: 43.62569, longitude: -79.28140),
                 CLLocationCoordinate2D(latitude: 43.62569, longitude: -79.28140),
                 CLLocationCoordinate2D(latitude: 43.61260, longitude: -79.28296),
                 CLLocationCoordinate2D(latitude: 43.59988, longitude: -79.28762),
@@ -188,85 +131,60 @@ struct ContentView: View {
                 CLLocationCoordinate2D(latitude: 43.54482, longitude: -79.38163)
             ],
             color: .red,
-            label: "",
-            textDeltaX: 0,
-            textDeltaY: 0
+            label: ""
         )
     ]
 
+    @State private var region = MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: 43.6766666, longitude: -79.63),
+        span: MKCoordinateSpan(latitudeDelta: 0.2, longitudeDelta: 0.2)
+    )
+
     var body: some View {
-        MapViewWrapper(circles: $circles, polygons: $polygons)
-            .edgesIgnoringSafeArea(.all)
+        ZStack {
+            MapViewWrapper(circles: $circles, polygons: $polygons, region: $region)
+                .edgesIgnoringSafeArea(.all)
+
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    VStack(spacing: 10) {
+                        Button(action: {
+                            region.span.latitudeDelta /= 2
+                            region.span.longitudeDelta /= 2
+                        }) {
+                            Image(systemName: "plus.magnifyingglass")
+                                .font(.title)
+                                .padding()
+                                .background(Color.white.opacity(0.8))
+                                .clipShape(Circle())
+                        }
+
+                        Button(action: {
+                            region.span.latitudeDelta *= 2
+                            region.span.longitudeDelta *= 2
+                        }) {
+                            Image(systemName: "minus.magnifyingglass")
+                                .font(.title)
+                                .padding()
+                                .background(Color.white.opacity(0.8))
+                                .clipShape(Circle())
+                        }
+                    }
+                    .padding()
+                }
+            }
+        }
     }
 }
 
-// MARK: - Map Wrapper
+// MARK: - MapViewWrapper
 
 struct MapViewWrapper: UIViewRepresentable {
     @Binding var circles: [CircleOverlay]
     @Binding var polygons: [PolygonOverlay]
-
-    func makeUIView(context: Context) -> MKMapView {
-        let mapView = MKMapView()
-        mapView.delegate = context.coordinator
-        mapView.pointOfInterestFilter = .excludingAll
-
-
-        if let first = circles.first {
-            let region = MKCoordinateRegion(
-                center: first.coordinate,
-                latitudinalMeters: first.radius * 4,
-                longitudinalMeters: first.radius * 4
-            )
-            mapView.setRegion(region, animated: false)
-        }
-
-        updateMapAnnotationsAndOverlays(mapView)
-
-        return mapView
-    }
-
-    func updateUIView(_ uiView: MKMapView, context: Context) {
-        uiView.removeOverlays(uiView.overlays)
-        uiView.removeAnnotations(uiView.annotations)
-        updateMapAnnotationsAndOverlays(uiView)
-    }
-
-    private func updateMapAnnotationsAndOverlays(_ mapView: MKMapView) {
-        for circle in circles {
-            let mkCircle = ColoredCircle(center: circle.coordinate, radius: circle.radius, color: circle.color)
-            mapView.addOverlay(mkCircle)
-
-            let annotation = LabelAnnotation(id: circle.id, coordinate: circle.coordinate, title: circle.label, color: circle.color)
-            annotation.textDeltaX = circle.textDeltaX
-            annotation.textDeltaY = circle.textDeltaY
-            mapView.addAnnotation(annotation)
-        }
-
-        for polygon in polygons {
-            let center = centroid(of: polygon.coordinates)
-            let mkPolygon = ColoredPolygon(coordinates: polygon.coordinates, color: polygon.color)
-            mapView.addOverlay(mkPolygon)
-
-            let annotation = LabelAnnotation(id: polygon.id, coordinate: center, title: polygon.label, color: polygon.color)
-            annotation.textDeltaX = polygon.textDeltaX
-            annotation.textDeltaY = polygon.textDeltaY
-            mapView.addAnnotation(annotation)
-        }
-    }
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-
-    func centroid(of coordinates: [CLLocationCoordinate2D]) -> CLLocationCoordinate2D {
-        let count = Double(coordinates.count)
-        let lat = coordinates.reduce(0) { $0 + $1.latitude } / count
-        let lon = coordinates.reduce(0) { $0 + $1.longitude } / count
-        return CLLocationCoordinate2D(latitude: lat, longitude: lon)
-    }
-
-    // MARK: - Coordinator
+    @Binding var region: MKCoordinateRegion
 
     class Coordinator: NSObject, MKMapViewDelegate {
         var parent: MapViewWrapper
@@ -276,18 +194,18 @@ struct MapViewWrapper: UIViewRepresentable {
         }
 
         func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
-            if let coloredCircle = overlay as? ColoredCircle {
-                let renderer = MKCircleRenderer(circle: coloredCircle)
-                renderer.fillColor = coloredCircle.color.withAlphaComponent(0.3)
-                renderer.strokeColor = coloredCircle.color
+            if let circle = overlay as? ColoredCircle {
+                let renderer = MKCircleRenderer(circle: circle)
+                renderer.fillColor = circle.color.withAlphaComponent(0.3)
+                renderer.strokeColor = circle.color
                 renderer.lineWidth = 1
                 return renderer
             }
 
-            if let coloredPolygon = overlay as? ColoredPolygon {
-                let renderer = MKPolygonRenderer(polygon: coloredPolygon)
-                renderer.fillColor = coloredPolygon.color.withAlphaComponent(0.3)
-                renderer.strokeColor = coloredPolygon.color
+            if let polygon = overlay as? ColoredPolygon {
+                let renderer = MKPolygonRenderer(polygon: polygon)
+                renderer.fillColor = polygon.color.withAlphaComponent(0.3)
+                renderer.strokeColor = polygon.color
                 renderer.lineWidth = 0.5
                 return renderer
             }
@@ -315,7 +233,6 @@ struct MapViewWrapper: UIViewRepresentable {
 
                 annotationView?.frame = CGRect(x: 0, y: 0, width: 250, height: 20)
                 label.frame = annotationView!.bounds
-
                 annotationView?.centerOffset = CGPoint(x: 0, y: 0)
             } else {
                 annotationView?.annotation = annotation
@@ -326,38 +243,76 @@ struct MapViewWrapper: UIViewRepresentable {
                 label.textColor = labelAnnotation.color.contrastingTextColor
             }
 
-            // Zoom-based scale factor for offset
             let zoomFactor = CGFloat(mapView.region.span.latitudeDelta)
-            let scale = max(1.0, 0.5 / zoomFactor)  // Adjust as needed
+            let scale = max(1.0, 0.5 / zoomFactor)
+            annotationView?.centerOffset = CGPoint(x: labelAnnotation.textDeltaX * scale, y: labelAnnotation.textDeltaY * scale)
 
-            annotationView?.centerOffset = CGPoint(
-                x: labelAnnotation.textDeltaX * scale,
-                y: labelAnnotation.textDeltaY * scale
-            )
-
-            // Alpha based on zoom level
             let zoomThreshold: CLLocationDegrees = 0.5
-            let spanLatDelta = mapView.region.span.latitudeDelta
-            let targetAlpha: CGFloat = spanLatDelta > zoomThreshold ? 0 : 1
-            annotationView?.alpha = targetAlpha
+            annotationView?.alpha = mapView.region.span.latitudeDelta > zoomThreshold ? 0 : 1
 
             return annotationView
         }
 
         func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
-            let zoomThreshold: CLLocationDegrees = 0.5
-            let spanLatDelta = mapView.region.span.latitudeDelta
+            parent.region = mapView.region
+        }
+    }
 
-            for annotationView in mapView.annotations.compactMap({ mapView.view(for: $0) }) {
-                let targetAlpha: CGFloat = spanLatDelta > zoomThreshold ? 0 : 1
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
 
-                if annotationView.alpha != targetAlpha {
-                    UIView.animate(withDuration: 0.25) {
-                        annotationView.alpha = targetAlpha
-                    }
-                }
+    func makeUIView(context: Context) -> MKMapView {
+        let mapView = MKMapView()
+        mapView.delegate = context.coordinator
+        mapView.setRegion(region, animated: false)
+        mapView.pointOfInterestFilter = .excludingAll
+        mapView.showsUserLocation = true
+        mapView.userTrackingMode = .follow
+
+        updateMapAnnotationsAndOverlays(mapView)
+        return mapView
+    }
+
+    func updateUIView(_ mapView: MKMapView, context: Context) {
+        if mapView.region.center.latitude != region.center.latitude ||
+            mapView.region.center.longitude != region.center.longitude ||
+            mapView.region.span.latitudeDelta != region.span.latitudeDelta {
+            UIView.animate(withDuration: 0.2) {
+                mapView.setRegion(region, animated: true)
             }
         }
+
+        mapView.removeOverlays(mapView.overlays)
+        mapView.removeAnnotations(mapView.annotations)
+        updateMapAnnotationsAndOverlays(mapView)
+    }
+
+    private func updateMapAnnotationsAndOverlays(_ mapView: MKMapView) {
+        for circle in circles {
+            let mkCircle = ColoredCircle(center: circle.coordinate, radius: circle.radius, color: circle.color)
+            mapView.addOverlay(mkCircle)
+            let annotation = LabelAnnotation(id: circle.id, coordinate: circle.coordinate, title: circle.label, color: circle.color)
+            annotation.textDeltaX = circle.textDeltaX
+            annotation.textDeltaY = circle.textDeltaY
+            mapView.addAnnotation(annotation)
+        }
+
+        for polygon in polygons {
+            let center = centroid(of: polygon.coordinates)
+            let mkPolygon = ColoredPolygon(coordinates: polygon.coordinates, color: polygon.color)
+            mapView.addOverlay(mkPolygon)
+            let annotation = LabelAnnotation(id: polygon.id, coordinate: center, title: polygon.label, color: polygon.color)
+            annotation.textDeltaX = polygon.textDeltaX
+            annotation.textDeltaY = polygon.textDeltaY
+            mapView.addAnnotation(annotation)
+        }
+    }
+
+    func centroid(of coordinates: [CLLocationCoordinate2D]) -> CLLocationCoordinate2D {
+        let lat = coordinates.reduce(0) { $0 + $1.latitude } / Double(coordinates.count)
+        let lon = coordinates.reduce(0) { $0 + $1.longitude } / Double(coordinates.count)
+        return CLLocationCoordinate2D(latitude: lat, longitude: lon)
     }
 }
 
