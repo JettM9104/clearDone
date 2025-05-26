@@ -102,7 +102,8 @@ struct ContentView: View {
         CircleOverlay(coordinate: CLLocationCoordinate2D(latitude: 43.9255, longitude: -78.8968), radius: 9260, color: .orange, label: "D: CYOO-YOO"),
         CircleOverlay(coordinate: CLLocationCoordinate2D(latitude: 43.88510, longitude: -79.23059), radius: 1852, color: .red, label: "C: CPH7"),
         CircleOverlay(coordinate: CLLocationCoordinate2D(latitude: 43.85216, longitude: -79.69482), radius: 1852, color: .red, label: "C: CNB2"),
-        CircleOverlay(coordinate: CLLocationCoordinate2D(latitude: 43.917, longitude: -79.555616667), radius:1852, color: .yellow, label: "E: CKC3"),
+        CircleOverlay(coordinate: CLLocationCoordinate2D(latitude: 43.917, longitude: -79.555616667), radius: 1852, color: .yellow, label: "E: CKC3"),
+        CircleOverlay(coordinate: CLLocationCoordinate2D(latitude: 44.129167, longitude: -78.941944), radius: 5556, color: .yellow, label: "E: CSV6")
         
     ]
 
@@ -401,8 +402,51 @@ struct ContentView: View {
                 label: "E: CBB2"
             ),
         
-
-
+        PolygonOverlay(
+                coordinates:[
+                    CLLocationCoordinate2D(latitude: 43.9889, longitude: -79.6779),
+                    CLLocationCoordinate2D(latitude: 43.9998, longitude: -79.7731),
+                    CLLocationCoordinate2D(latitude: 43.9999, longitude: -79.7751),
+                    CLLocationCoordinate2D(latitude: 43.9997, longitude: -79.7771),
+                    CLLocationCoordinate2D(latitude: 43.9993, longitude: -79.7791),
+                    CLLocationCoordinate2D(latitude: 43.9987, longitude: -79.7809),
+                    CLLocationCoordinate2D(latitude: 43.9978, longitude: -79.7825),
+                    CLLocationCoordinate2D(latitude: 43.9968, longitude: -79.7839),
+                    CLLocationCoordinate2D(latitude: 43.9956, longitude: -79.785),
+                    CLLocationCoordinate2D(latitude: 43.9943, longitude: -79.7858),
+                    CLLocationCoordinate2D(latitude: 43.9929, longitude: -79.7863),
+                    CLLocationCoordinate2D(latitude: 43.9914, longitude: -79.7865),
+                    CLLocationCoordinate2D(latitude: 43.99, longitude: -79.7863),
+                    CLLocationCoordinate2D(latitude: 43.9886, longitude: -79.7857),
+                    CLLocationCoordinate2D(latitude: 43.9873, longitude: -79.7848),
+                    CLLocationCoordinate2D(latitude: 43.9861, longitude: -79.7836),
+                    CLLocationCoordinate2D(latitude: 43.9851, longitude: -79.7822),
+                    CLLocationCoordinate2D(latitude: 43.9843, longitude: -79.7805),
+                    CLLocationCoordinate2D(latitude: 43.9837, longitude: -79.7787),
+                    CLLocationCoordinate2D(latitude: 43.9833, longitude: -79.7767),
+                    CLLocationCoordinate2D(latitude: 43.9725, longitude: -79.6815),
+                    CLLocationCoordinate2D(latitude: 43.9724, longitude: -79.6795),
+                    CLLocationCoordinate2D(latitude: 43.9725, longitude: -79.6775),
+                    CLLocationCoordinate2D(latitude: 43.9729, longitude: -79.6756),
+                    CLLocationCoordinate2D(latitude: 43.9736, longitude: -79.6738),
+                    CLLocationCoordinate2D(latitude: 43.9744, longitude: -79.6721),
+                    CLLocationCoordinate2D(latitude: 43.9755, longitude: -79.6707),
+                    CLLocationCoordinate2D(latitude: 43.9767, longitude: -79.6696),
+                    CLLocationCoordinate2D(latitude: 43.978, longitude: -79.6688),
+                    CLLocationCoordinate2D(latitude: 43.9794, longitude: -79.6683),
+                    CLLocationCoordinate2D(latitude: 43.9809, longitude: -79.6681),
+                    CLLocationCoordinate2D(latitude: 43.9823, longitude: -79.6684),
+                    CLLocationCoordinate2D(latitude: 43.9837, longitude: -79.6689),
+                    CLLocationCoordinate2D(latitude: 43.985, longitude: -79.6698),
+                    CLLocationCoordinate2D(latitude: 43.9862, longitude: -79.671),
+                    CLLocationCoordinate2D(latitude: 43.9872, longitude: -79.6724),
+                    CLLocationCoordinate2D(latitude: 43.988, longitude: -79.6741),
+                    CLLocationCoordinate2D(latitude: 43.9886, longitude: -79.6759),
+                    CLLocationCoordinate2D(latitude: 43.9889, longitude: -79.6779),
+                ],
+                color: .yellow,
+                label: "E: CSV8"
+        )
     ]
 
     @State private var region = MKCoordinateRegion(
